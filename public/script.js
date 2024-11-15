@@ -55,4 +55,28 @@ document.getElementById('login-form').addEventListener('submit', (e) => {
     signIn(email, password);
   });
   
+  class Point {
+    constructor(x, y) {
+      this.x = x;  // X coordinate
+      this.y = y;  // Y coordinate
+    }
+  
+    // Method to get the distance from this point to another point
+    distanceTo(otherPoint) {
+      const dx = this.x - otherPoint.x;
+      const dy = this.y - otherPoint.y;
+      return Math.sqrt(dx * dx + dy * dy);
+    }
+  
+    // Method to display the point as a string
+    toString() {
+      return `(${this.x}, ${this.y})`;
+    }
+  
+    // Optional: Method to move the point by a given amount
+    move(dx, dy) {
+      this.x += dx;
+      this.y += dy;
+    }
+  }
   
