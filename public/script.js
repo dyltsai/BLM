@@ -16,7 +16,66 @@ firebase.initializeApp(firebaseConfig);
 // Get references to Firestore and Auth
 const db = firebase.firestore();
 const auth = firebase.auth();
+const app = firebase.initializeApp(firebaseConfig);
+const analytics = firebase.getAnalytics(app);
 
+// Create the PixiJS application
+const appPixi = new PIXI.Application({
+  width: window.innerWidth,
+  height: window.innerHeight,
+  backgroundColor: 0x87CEEB // Sky blue background
+});
+
+// Add the PixiJS view (canvas) to the document body
+document.body.appendChild(appPixi.view);
+
+// Load the monkey sprite (use your own image here)
+PIXI.Loader.shared.add('monkey', './images/monkey.png').load(setup);
+
+let monkey;
+let isJumping = false;
+let gravity = 0.5;
+let jumpSpeed = -12;
+let monkeySpeed = 0;
+
+// Function to set up the scene
+function setup() {
+  // Create the monkey sprite and set its initial position
+  monkey = new PIXI.Sprite(PIXI.Loader.shared.resources['monkey'].texture);
+  monkey.anchor.set(0.5);
+  monkey.x = appPixi.screen.width / 2;
+  monkey.y = appPixi.screen.height - monkey.height / 2;
+  appPixi.stage.addChild(monkey);
+
+  // Listen for the spacebar to make the monkey jump
+  window.addEventListener('keydown', onKeyDown);
+
+  // Start the game loop
+  appPixi.ticker.add(gameLoop);
+}
+
+// Function to handle key presses
+function onKeyDown(e) {
+  if (e.code === 'Space' && !isJumping) {
+      isJumping = true;
+      monkeySpeed = jumpSpeed; // Set the initial speed for the jump
+  }
+}
+
+// Main game loop
+function gameLoop() {
+  if (isJumping) {
+      monkey.y += monkeySpeed;
+      monkeySpeed += gravity; // Apply gravity
+
+      // Check if the monkey has landed
+      if (monkey.y >= appPixi.screen.height - monkey.height / 2) {
+          monkey.y = appPixi.screen.height - monkey.height / 2;
+          isJumping = false;
+          monkeySpeed = 0; // Stop the jump when landing
+      }
+  }
+}
 //login
 // Function to sign up a user
 function signUp(email, password) {
@@ -79,4 +138,6 @@ document.getElementById('login-form').addEventListener('submit', (e) => {
       this.y += dy;
     }
   }
+
+  
   

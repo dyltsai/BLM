@@ -1,3 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Monkey Jump</title>
+    <!-- Include PixiJS -->
+    <script src="https://pixijs.download/release/pixi.js"></script>
+    <!-- Include Firebase (even though we are not using it in this example) -->
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-analytics.js"></script>
+    <!-- Link to external JS -->
+    <script src="app.js" defer></script>
+    <!-- Link to external CSS -->
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <!doctype html>
+<html>
+  <body>
+    <script type="module">
+      // Create the application helper and add its render target to the page
+      const app = new PIXI.Application();
+      await app.init({ width: 640, height: 360 })
+      document.body.appendChild(app.canvas);
+      // Create the sprite and add it to the stage
+      await PIXI.Assets.load('images/monkey.png');
+      let sprite = PIXI.Sprite.from('images/monkey.png');
+      app.stage.addChild(sprite);
+
+    </script>
+  </body>
 <form id="signup-form">
   <input type="email" id="email" placeholder="Email" required />
   <input type="password" id="password" placeholder="Password" required />
