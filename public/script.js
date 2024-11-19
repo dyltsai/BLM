@@ -76,44 +76,6 @@ function gameLoop() {
       }
   }
 }
-//login
-// Function to sign up a user
-function signUp(email, password) {
-    auth.createUserWithEmailAndPassword(email, password)
-      .then((userCredential) => {
-        const user = userCredential.user;
-        console.log('User signed up:', user);
-      })
-      .catch((error) => {
-        console.error('Error signing up:', error);
-      });
-  }
-  // Event listener for sign-up form
-document.getElementById('signup-form').addEventListener('submit', (e) => {
-    e.preventDefault();
-    const email = document.getElementById('email').value;
-    const password = document.getElementById('password').value;
-    signUp(email, password);
-  });
-// Function to sign in a user
-function signIn(email, password) {
-    auth.signInWithEmailAndPassword(email, password)
-      .then((userCredential) => {
-        const user = userCredential.user;
-        console.log('User signed in:', user);
-      })
-      .catch((error) => {
-        console.error('Error signing in:', error);
-      });
-  }
-// Event listener for login form
-document.getElementById('login-form').addEventListener('submit', (e) => {
-    e.preventDefault();
-    const email = document.getElementById('email').value;
-    const password = document.getElementById('password').value;
-    signIn(email, password);
-  });
-  
   class Point {
     constructor(x, y) {
       this.x = x;  // X coordinate
