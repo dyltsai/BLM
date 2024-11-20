@@ -13,60 +13,85 @@ class VineSimulator {
       document.body.appendChild(this.app.view);
 
       // Vine properties
-      this.vineGraphics = new PIXI.Graphics();
-      this.anchorX = this.app.screen.width / 2;
-      this.anchorY = 0;
-      this.vineLength = this.app.screen.height * 0.8;
+      this.vines = [];
+      this.createVines();
+
+      // Animate vines
+      this.app.ticker.add(this.animateVines.bind(this));
+  }
+
+  createVines() {
+      const screenWidth = this.app.screen.width;
+      const screenHeight = this.app.screen.height;
       
-      // Pendulum physics
-      this.angle = Math.PI / 4; // Starting angle (45 degrees)
-      this.angleVelocity = 0;
-      this.angleAcceleration = 0;
-      this.damping = 0.995; // Slight air resistance
-      this.gravity = 0.2; // Gravity effect
+      // Vine lengths (proportional to screen height, ensuring they end before bottom)
+      const lengths = [
+          screenHeight * 0.6,  // Short vine
+          screenHeight * 0.75, // Medium vine
+          screenHeight * 0.5   // Shortest vine
+      ];
 
-      // Create and animate the vine
-      this.createVineLine();
-      this.app.ticker.add(this.animateVine.bind(this));
+      // Vine positions across the screen
+      const xPositions = [
+          screenWidth * 0.25,  // Left
+          screenWidth * 0.5,   // Center
+          screenWidth * 0.75   // Right
+      ];
+
+      // Create three vines with different characteristics
+      for (let i = 0; i < 3; i++) {
+          const vineGraphics = new PIXI.Graphics();
+          
+          // Vine properties
+          const vine = {
+              graphics: vineGraphics,
+              anchorX: xPositions[i],
+              anchorY: 0,
+              length: lengths[i],
+              angle: Math.PI / 4 * (i + 1) / 2, // Slightly different starting angles
+              angleVelocity: 0,
+              angleAcceleration: 0,
+              damping: 0.995,
+              gravity: 0.2 * (1 + i * 0.1) // Slight variation in gravity
+          };
+
+          // Style the vine line
+          vineGraphics.lineStyle({
+              width: 4,
+              color: 0x008000,  // Dark green color
+              alpha: 1
+          });
+
+          // Add the vine graphics to the stage
+          this.app.stage.addChild(vineGraphics);
+          this.vines.push(vine);
+      }
   }
 
-  createVineLine() {
-      // Clear previous graphics
-      this.vineGraphics.clear();
+  animateVines() {
+      this.vines.forEach(vine => {
+          // Calculate pendulum physics
+          vine.angleAcceleration = -vine.gravity * Math.sin(vine.angle) * 0.5;
+          vine.angleVelocity += vine.angleAcceleration;
+          vine.angleVelocity *= vine.damping;
+          vine.angle += vine.angleVelocity;
 
-      // Style the vine line
-      this.vineGraphics.lineStyle({
-          width: 4,
-          color: 0x008000,  // Dark green color
-          alpha: 1
+          // Clear and redraw the vine
+          vine.graphics.clear();
+          vine.graphics.lineStyle({
+              width: 4,
+              color: 0x008000,
+              alpha: 1
+          });
+
+          // Calculate end point of the vine using trigonometry
+          const endX = vine.anchorX + vine.length * Math.sin(vine.angle);
+          const endY = vine.anchorY + vine.length * Math.cos(vine.angle);
+
+          // Draw the swinging vine
+          vine.graphics.moveTo(vine.anchorX, vine.anchorY);
+          vine.graphics.lineTo(endX, endY);
       });
-
-      // Add the vine graphics to the stage
-      this.app.stage.addChild(this.vineGraphics);
-  }
-
-  animateVine() {
-      // Calculate pendulum physics
-      this.angleAcceleration = -this.gravity * Math.sin(this.angle) * 0.5;
-      this.angleVelocity += this.angleAcceleration;
-      this.angleVelocity *= this.damping;
-      this.angle += this.angleVelocity;
-
-      // Clear and redraw the vine
-      this.vineGraphics.clear();
-      this.vineGraphics.lineStyle({
-          width: 4,
-          color: 0x008000,
-          alpha: 1
-      });
-
-      // Calculate end point of the vine using trigonometry
-      const endX = this.anchorX + this.vineLength * Math.sin(this.angle);
-      const endY = this.anchorY + this.vineLength * Math.cos(this.angle);
-
-      // Draw the swinging vine
-      this.vineGraphics.moveTo(this.anchorX, this.anchorY);
-      this.vineGraphics.lineTo(endX, endY);
   }
 }
 
