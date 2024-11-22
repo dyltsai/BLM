@@ -7,32 +7,39 @@ class VineSimulator {
             backgroundColor: 0xffffff,
             resizeTo: window
         });
-  
+    
         // Append the canvas to the document
         document.body.appendChild(this.app.view);
-  
+    
         // Vine properties
         this.vines = [];
         this.createVines();
-  
+    
         // Create red square
         this.createRedSquare();
-  
+    
         // Animate vines and red square
         this.app.ticker.add(this.animateVines.bind(this));
         this.app.ticker.add(this.animateRedSquare.bind(this));
-
+    
         window.addEventListener('keydown', this.handleKeyDown.bind(this));
-
+    
         // Track the last attached vine
         this.lastAttachedVine = null;
+    
+        // Physics properties for parabolic motion
+        this.gravity = 0.5;
+        this.jumpVelocityX = 0;
+        this.jumpVelocityY = 0;
     }
 
     handleKeyDown(event) {
         if (event.code === 'Space') {
             // Start moving the red square again if it has stopped
             if (this.redSquareVelocity === 0 && this.attachedVine) {
-                this.redSquareVelocity = 2;
+                const vine = this.attachedVine;
+                this.jumpVelocityX = 5 * Math.cos(vine.angle); // Adjust the multiplier for desired speed
+                this.jumpVelocityY = -5 * Math.sin(vine.angle); // Adjust the multiplier for desired speed
                 this.attachedVine = null;
             } else if (this.redSquareVelocity === 0) {
                 this.redSquareVelocity = 2;
@@ -164,8 +171,20 @@ class VineSimulator {
             const endY = vine.anchorY + vine.length * Math.cos(vine.angle);
             this.redSquare.x = endX - 25; // Center the square on the vine's end point
             this.redSquare.y = endY - 25;
+        } else {
+            // Apply parabolic motion
+        this.redSquare.x += this.jumpVelocityX;
+        this.redSquare.y += this.jumpVelocityY;
+        this.jumpVelocityY += this.gravity;
+
+        // Check for ground collision (bottom of the screen)
+        if (this.redSquare.y + 50 >= this.app.screen.height) {
+            this.redSquare.y = this.app.screen.height - 50;
+            this.jumpVelocityY = 0;
+            this.redSquareVelocity = 2; // Resume horizontal movement
         }
     }
+}
 
     moveScreenLeft() {
         const screenWidth = this.app.screen.width;
