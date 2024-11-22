@@ -77,8 +77,8 @@ class VineSimulator {
         this.redSquare.drawRect(0, 0, 50, 50); // Draw a 50x50 red square
         this.redSquare.endFill();
   
-        // Position the red square
-        this.redSquare.x = this.app.screen.width / 2 - 25; // Center horizontally
+        // Position the red square to the left of the screen
+        this.redSquare.x = 0; // Left edge of the screen
         this.redSquare.y = this.app.screen.height / 2 - 25; // Center vertically
   
         // Add the red square to the stage
@@ -122,6 +122,29 @@ class VineSimulator {
         if (this.redSquare.x <= 0 || this.redSquare.x + 50 >= this.app.screen.width) {
             this.redSquareVelocity *= -1;
         }
+
+        // Check for collision with vines
+        this.vines.forEach(vine => {
+            const endX = vine.anchorX + vine.length * Math.sin(vine.angle);
+            const endY = vine.anchorY + vine.length * Math.cos(vine.angle);
+            if (this.checkCollision(this.redSquare, endX, endY)) {
+                this.redSquareVelocity = 0;
+            }
+        });
+    }
+
+    checkCollision(square, vineEndX, vineEndY) {
+        const squareLeft = square.x;
+        const squareRight = square.x + 50;
+        const squareTop = square.y;
+        const squareBottom = square.y + 50;
+
+        return (
+            vineEndX >= squareLeft &&
+            vineEndX <= squareRight &&
+            vineEndY >= squareTop &&
+            vineEndY <= squareBottom
+        );
     }
 }
   
