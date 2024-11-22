@@ -178,6 +178,42 @@ class VineSimulator {
     
         // Move the red square to the left part of the screen
         this.redSquare.x = screenWidth * 0.1;
+    
+        // Generate a new vine on the right
+        this.createNewVine(screenWidth - offset);
+    }
+
+    createNewVine(xPosition) {
+        const screenHeight = this.app.screen.height;
+    
+        // Random vine length (proportional to screen height, ensuring it ends before bottom)
+        const length = screenHeight * (0.5 + Math.random() * 0.3);
+    
+        const vineGraphics = new PIXI.Graphics();
+    
+        // Vine properties
+        const vine = {
+            graphics: vineGraphics,
+            anchorX: xPosition,
+            anchorY: 0,
+            length: length,
+            angle: Math.PI / 4 * Math.random(), // Random starting angle
+            angleVelocity: 0,
+            angleAcceleration: 0,
+            damping: 0.995,
+            gravity: 0.2 * (1 + Math.random() * 0.1) // Slight variation in gravity
+        };
+    
+        // Style the vine line
+        vineGraphics.lineStyle({
+            width: 4,
+            color: 0x008000,  // Dark green color
+            alpha: 1
+        });
+    
+        // Add the vine graphics to the stage
+        this.app.stage.addChild(vineGraphics);
+        this.vines.push(vine);
     }
     
     checkCollision(square, vineStartX, vineStartY, vineEndX, vineEndY) {
