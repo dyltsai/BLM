@@ -21,6 +21,17 @@ class VineSimulator {
         // Animate vines and red square
         this.app.ticker.add(this.animateVines.bind(this));
         this.app.ticker.add(this.animateRedSquare.bind(this));
+
+        window.addEventListener('keydown', this.handleKeyDown.bind(this));
+    }
+
+    handleKeyDown(event) {
+        if (event.code === 'Space') {
+            // Start moving the red square again if it has stopped
+            if (this.redSquareVelocity === 0) {
+                this.redSquareVelocity = 2;
+            }
+        }
     }
   
     createVines() {
