@@ -153,6 +153,7 @@ class VineSimulator {
                     this.redSquareVelocity = 0;
                     this.attachedVine = vine;
                     this.lastAttachedVine = vine;
+                    this.moveScreenLeft();
                     break; // Stop checking further if a collision is detected
                 }
             }
@@ -164,6 +165,19 @@ class VineSimulator {
             this.redSquare.x = endX - 25; // Center the square on the vine's end point
             this.redSquare.y = endY - 25;
         }
+    }
+
+    moveScreenLeft() {
+        const screenWidth = this.app.screen.width;
+        const offset = this.redSquare.x - screenWidth * 0.1; // Keep the square on the left part of the screen
+    
+        // Move all vines to the left
+        for (const vine of this.vines) {
+            vine.anchorX -= offset;
+        }
+    
+        // Move the red square to the left part of the screen
+        this.redSquare.x = screenWidth * 0.1;
     }
     
     checkCollision(square, vineStartX, vineStartY, vineEndX, vineEndY) {
