@@ -30,6 +30,7 @@ class VineSimulator {
             // Start moving the red square again if it has stopped
             if (this.redSquareVelocity === 0) {
                 this.redSquareVelocity = 2;
+                this.followingVine = null;
             }
         }
     }
@@ -97,6 +98,7 @@ class VineSimulator {
   
         // Set initial velocity for the red square
         this.redSquareVelocity = 2;
+        this.followingVine = null;
     }
   
     animateVines() {
@@ -126,25 +128,35 @@ class VineSimulator {
     }
 
     animateRedSquare() {
-        // Move the red square left to right
-        this.redSquare.x += this.redSquareVelocity;
-    
-        // Bounce back when reaching the edges of the screen
-        if (this.redSquare.x <= 0 || this.redSquare.x + 50 >= this.app.screen.width) {
-            this.redSquareVelocity *= -1;
-        }
-    
-        // Check for collision with vines
-        for (const vine of this.vines) {
-            const startX = vine.anchorX;
-            const startY = vine.anchorY;
+        if (this.redSquareVelocity !== 0) {
+            // Move the red square left to right
+            this.redSquare.x += this.redSquareVelocity;
+        
+            // Bounce back when reaching the edges of the screen
+            if (this.redSquare.x <= 0 || this.redSquare.x + 50 >= this.app.screen.width) {
+                this.redSquareVelocity *= -1;
+            }
+        
+            // Check for collision with vines
+            for (const vine of this.vines) {
+                const startX = vine.anchorX;
+                const startY = vine.anchorY;
+                const endX = vine.anchorX + vine.length * Math.sin(vine.angle);
+                const endY = vine.anchorY + vine.length * Math.cos(vine.angle);
+        
+                if (this.checkCollision(this.redSquare, startX, startY, endX, endY)) {
+                    this.redSquareVelocity = 0;
+                    this.attachedVine = vine;
+                    break; // Stop checking further if a collision is detected
+                }
+            }
+        } else if (this.attachedVine) {
+            // Follow the trajectory of the vine
+            const vine = this.attachedVine;
             const endX = vine.anchorX + vine.length * Math.sin(vine.angle);
             const endY = vine.anchorY + vine.length * Math.cos(vine.angle);
-    
-            if (this.checkCollision(this.redSquare, startX, startY, endX, endY)) {
-                this.redSquareVelocity = 0;
-                break; // Stop checking further if a collision is detected
-            }
+            this.redSquare.x = endX - 25; // Center the square on the vine's end point
+            this.redSquare.y = endY - 25;
         }
     }
     
