@@ -23,14 +23,19 @@ class VineSimulator {
         this.app.ticker.add(this.animateRedSquare.bind(this));
 
         window.addEventListener('keydown', this.handleKeyDown.bind(this));
+
+        // Track the last attached vine
+        this.lastAttachedVine = null;
     }
 
     handleKeyDown(event) {
         if (event.code === 'Space') {
             // Start moving the red square again if it has stopped
-            if (this.redSquareVelocity === 0) {
+            if (this.redSquareVelocity === 0 && this.attachedVine) {
                 this.redSquareVelocity = 2;
-                this.followingVine = null;
+                this.attachedVine = null;
+            } else if (this.redSquareVelocity === 0) {
+                this.redSquareVelocity = 2;
             }
         }
     }
@@ -144,9 +149,10 @@ class VineSimulator {
                 const endX = vine.anchorX + vine.length * Math.sin(vine.angle);
                 const endY = vine.anchorY + vine.length * Math.cos(vine.angle);
         
-                if (this.checkCollision(this.redSquare, startX, startY, endX, endY)) {
+                if (this.checkCollision(this.redSquare, startX, startY, endX, endY) && vine !== this.lastAttachedVine) {
                     this.redSquareVelocity = 0;
                     this.attachedVine = vine;
+                    this.lastAttachedVine = vine;
                     break; // Stop checking further if a collision is detected
                 }
             }
