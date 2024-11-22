@@ -1,4 +1,3 @@
-// Vine Simulator
 class VineSimulator {
     constructor(width = 800, height = 600) {
         // Create the application
@@ -19,8 +18,9 @@ class VineSimulator {
         // Create red square
         this.createRedSquare();
   
-        // Animate vines
+        // Animate vines and red square
         this.app.ticker.add(this.animateVines.bind(this));
+        this.app.ticker.add(this.animateRedSquare.bind(this));
     }
   
     createVines() {
@@ -72,17 +72,20 @@ class VineSimulator {
     }
   
     createRedSquare() {
-        const redSquare = new PIXI.Graphics();
-        redSquare.beginFill(0xff0000);
-        redSquare.drawRect(0, 0, 50, 50); // Draw a 50x50 red square
-        redSquare.endFill();
+        this.redSquare = new PIXI.Graphics();
+        this.redSquare.beginFill(0xff0000);
+        this.redSquare.drawRect(0, 0, 50, 50); // Draw a 50x50 red square
+        this.redSquare.endFill();
   
         // Position the red square
-        redSquare.x = this.app.screen.width / 2 - 25; // Center horizontally
-        redSquare.y = this.app.screen.height / 2 - 25; // Center vertically
+        this.redSquare.x = this.app.screen.width / 2 - 25; // Center horizontally
+        this.redSquare.y = this.app.screen.height / 2 - 25; // Center vertically
   
         // Add the red square to the stage
-        this.app.stage.addChild(redSquare);
+        this.app.stage.addChild(this.redSquare);
+  
+        // Set initial velocity for the red square
+        this.redSquareVelocity = 2;
     }
   
     animateVines() {
@@ -110,9 +113,19 @@ class VineSimulator {
             vine.graphics.lineTo(endX, endY);
         });
     }
-  }
+
+    animateRedSquare() {
+        // Move the red square left to right
+        this.redSquare.x += this.redSquareVelocity;
   
-  // Initialize the vine simulator when the page loads
-  document.addEventListener('DOMContentLoaded', () => {
+        // Bounce back when reaching the edges of the screen
+        if (this.redSquare.x <= 0 || this.redSquare.x + 50 >= this.app.screen.width) {
+            this.redSquareVelocity *= -1;
+        }
+    }
+}
+  
+// Initialize the vine simulator when the page loads
+document.addEventListener('DOMContentLoaded', () => {
     new VineSimulator();
-  });
+});
