@@ -117,34 +117,58 @@ class VineSimulator {
     animateRedSquare() {
         // Move the red square left to right
         this.redSquare.x += this.redSquareVelocity;
-  
+    
         // Bounce back when reaching the edges of the screen
         if (this.redSquare.x <= 0 || this.redSquare.x + 50 >= this.app.screen.width) {
             this.redSquareVelocity *= -1;
         }
-
+    
         // Check for collision with vines
-        this.vines.forEach(vine => {
+        for (const vine of this.vines) {
+            const startX = vine.anchorX;
+            const startY = vine.anchorY;
             const endX = vine.anchorX + vine.length * Math.sin(vine.angle);
             const endY = vine.anchorY + vine.length * Math.cos(vine.angle);
-            if (this.checkCollision(this.redSquare, endX, endY)) {
+    
+            if (this.checkCollision(this.redSquare, startX, startY, endX, endY)) {
                 this.redSquareVelocity = 0;
+                break; // Stop checking further if a collision is detected
             }
-        });
+        }
     }
-
-    checkCollision(square, vineEndX, vineEndY) {
+    
+    checkCollision(square, vineStartX, vineStartY, vineEndX, vineEndY) {
         const squareLeft = square.x;
         const squareRight = square.x + 50;
         const squareTop = square.y;
         const squareBottom = square.y + 50;
-
-        return (
-            vineEndX >= squareLeft &&
-            vineEndX <= squareRight &&
-            vineEndY >= squareTop &&
-            vineEndY <= squareBottom
-        );
+    
+        // Check if any part of the vine intersects with the square
+        return this.lineIntersectsRect(vineStartX, vineStartY, vineEndX, vineEndY, squareLeft, squareTop, squareRight, squareBottom);
+    }
+    
+    lineIntersectsRect(x1, y1, x2, y2, rectLeft, rectTop, rectRight, rectBottom) {
+        // Check if either end of the line is inside the rectangle
+        if ((x1 >= rectLeft && x1 <= rectRight && y1 >= rectTop && y1 <= rectBottom) ||
+            (x2 >= rectLeft && x2 <= rectRight && y2 >= rectTop && y2 <= rectBottom)) {
+            return true;
+        }
+    
+        // Check if the line intersects any of the rectangle's sides
+        return this.lineIntersectsLine(x1, y1, x2, y2, rectLeft, rectTop, rectRight, rectTop) ||
+               this.lineIntersectsLine(x1, y1, x2, y2, rectRight, rectTop, rectRight, rectBottom) ||
+               this.lineIntersectsLine(x1, y1, x2, y2, rectRight, rectBottom, rectLeft, rectBottom) ||
+               this.lineIntersectsLine(x1, y1, x2, y2, rectLeft, rectBottom, rectLeft, rectTop);
+    }
+    
+    lineIntersectsLine(x1, y1, x2, y2, x3, y3, x4, y4) {
+        const denom = (y4 - y3) * (x2 - x1) - (x4 - x3) * (y2 - y1);
+        if (denom === 0) {
+            return false; // Lines are parallel
+        }
+        const ua = ((x4 - x3) * (y1 - y3) - (y4 - y3) * (x1 - x3)) / denom;
+        const ub = ((x2 - x1) * (y1 - y3) - (y2 - y1) * (x1 - x3)) / denom;
+        return (ua >= 0 && ua <= 1 && ub >= 0 && ub <= 1);
     }
 }
   
