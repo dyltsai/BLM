@@ -28,7 +28,7 @@ class VineSimulator {
         this.lastAttachedVine = null;
     
         // Physics properties for parabolic motion
-        this.gravity = 0.2; // Increased gravity for more pronounced parabolic motion
+        this.gravity = 0.5; // Increased gravity for more pronounced parabolic motion
         this.jumpVelocityX = 5; // Adjusted initial horizontal velocity
         this.jumpVelocityY = -15; // Adjusted initial vertical velocity
     
@@ -160,23 +160,25 @@ class VineSimulator {
             if (this.redSquare.x <= 0 || this.redSquare.x + 50 >= this.app.screen.width) {
                 this.redSquareVelocity *= -1;
             }
-        
-            // Check for collision with vines
-            for (const vine of this.vines) {
-                const startX = vine.anchorX;
-                const startY = vine.anchorY;
-                const endX = vine.anchorX + vine.length * Math.sin(vine.angle);
-                const endY = vine.anchorY + vine.length * Math.cos(vine.angle);
-        
-                if (this.checkCollision(this.redSquare, startX, startY, endX, endY) && vine !== this.lastAttachedVine) {
-                    this.redSquareVelocity = 0;
-                    this.attachedVine = vine;
-                    this.lastAttachedVine = vine;
-                    this.moveScreenLeft();
-                    break; // Stop checking further if a collision is detected
-                }
+        }
+    
+        // Check for collision with vines
+        for (const vine of this.vines) {
+            const startX = vine.anchorX;
+            const startY = vine.anchorY;
+            const endX = vine.anchorX + vine.length * Math.sin(vine.angle);
+            const endY = vine.anchorY + vine.length * Math.cos(vine.angle);
+    
+            if (this.checkCollision(this.redSquare, startX, startY, endX, endY) && vine !== this.lastAttachedVine) {
+                this.redSquareVelocity = 0;
+                this.attachedVine = vine;
+                this.lastAttachedVine = vine;
+                this.moveScreenLeft();
+                break; // Stop checking further if a collision is detected
             }
-        } else if (this.attachedVine) {
+        }
+    
+        if (this.attachedVine) {
             // Follow the trajectory of the vine
             const vine = this.attachedVine;
             const endX = vine.anchorX + vine.length * Math.sin(vine.angle);
@@ -185,18 +187,18 @@ class VineSimulator {
             this.redSquare.y = endY - 25;
         } else {
             // Apply parabolic motion
-        this.redSquare.x += this.jumpVelocityX;
-        this.redSquare.y += this.jumpVelocityY;
-        this.jumpVelocityY += this.gravity;
-
-        // Check for ground collision (bottom of the screen)
-        if (this.redSquare.y + 50 >= this.app.screen.height) {
-            this.redSquare.y = this.app.screen.height - 50;
-            this.jumpVelocityY = 0;
-            this.redSquareVelocity = 2; // Resume horizontal movement
+            this.redSquare.x += this.jumpVelocityX;
+            this.redSquare.y += this.jumpVelocityY;
+            this.jumpVelocityY += this.gravity;
+    
+            // Check for ground collision (bottom of the screen)
+            if (this.redSquare.y + 50 >= this.app.screen.height) {
+                this.redSquare.y = this.app.screen.height - 50;
+                this.jumpVelocityY = 0;
+                this.redSquareVelocity = 2; // Resume horizontal movement
+            }
         }
     }
-}
 
     moveScreenLeft() {
         const screenWidth = this.app.screen.width;
