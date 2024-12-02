@@ -28,9 +28,9 @@ class VineSimulator {
         this.lastAttachedVine = null;
     
         // Physics properties for parabolic motion
-        this.gravity = 0.5;
-        this.jumpVelocityX = 0;
-        this.jumpVelocityY = 0;
+        this.gravity = 0.2; // Increased gravity for more pronounced parabolic motion
+        this.jumpVelocityX = 5; // Adjusted initial horizontal velocity
+        this.jumpVelocityY = -15; // Adjusted initial vertical velocity
     
         // Update existing vines to swing slower and wider
         this.updateExistingVines();
@@ -40,7 +40,7 @@ class VineSimulator {
         for (const vine of this.vines) {
             vine.damping = 0.995; // Increased damping for significantly slower swinging
             vine.gravity = 0.005 * (1 + Math.random() * 0.1); // Further reduced gravity for wider swinging
-            vine.angle = Math.PI / 2 * Math.random(); // Larger initial angle for wider swing
+            vine.angle = Math.PI / 1.5 * Math.random(); // Larger initial angle for wider swing
         }
     }
 
@@ -50,7 +50,7 @@ class VineSimulator {
             if (this.redSquareVelocity === 0 && this.attachedVine) {
                 const vine = this.attachedVine;
                 this.jumpVelocityX = 5 * Math.cos(vine.angle); // Adjust the multiplier for desired speed
-                this.jumpVelocityY = -5 * Math.sin(vine.angle); // Adjust the multiplier for desired speed
+                this.jumpVelocityY = -15 * Math.sin(vine.angle); // Adjust the multiplier for desired speed
                 this.attachedVine = null;
             } else if (this.redSquareVelocity === 0) {
                 this.redSquareVelocity = 2;
