@@ -32,14 +32,15 @@ class VineSimulator {
         this.jumpVelocityX = 0;
         this.jumpVelocityY = 0;
     
-        // Update existing vines to swing slower
+        // Update existing vines to swing slower and wider
         this.updateExistingVines();
     }
 
     updateExistingVines() {
         for (const vine of this.vines) {
             vine.damping = 0.995; // Increased damping for significantly slower swinging
-            vine.gravity = 0.01 * (1 + Math.random() * 0.1); // Further reduced gravity for wider swinging
+            vine.gravity = 0.005 * (1 + Math.random() * 0.1); // Further reduced gravity for wider swinging
+            vine.angle = Math.PI / 2 * Math.random(); // Larger initial angle for wider swing
         }
     }
 
@@ -227,11 +228,11 @@ class VineSimulator {
             anchorX: xPosition,
             anchorY: 0,
             length: length,
-            angle: Math.PI / 4 * Math.random(), // Random starting angle
+            angle: Math.PI / 2 * Math.random(), // Larger initial angle for wider swing
             angleVelocity: 0,
             angleAcceleration: 0,
             damping: 0.995, // Increased damping for significantly slower swinging
-            gravity: 0.01 * (1 + Math.random() * 0.1) // Further reduced gravity for wider swinging
+            gravity: 0.005 * (1 + Math.random() * 0.1) // Further reduced gravity for wider swinging
         };
     
         // Style the vine line
