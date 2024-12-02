@@ -31,6 +31,16 @@ class VineSimulator {
         this.gravity = 0.5;
         this.jumpVelocityX = 0;
         this.jumpVelocityY = 0;
+    
+        // Update existing vines to swing slower
+        this.updateExistingVines();
+    }
+
+    updateExistingVines() {
+        for (const vine of this.vines) {
+            vine.damping = 0.995; // Increased damping for significantly slower swinging
+            vine.gravity = 0.01 * (1 + Math.random() * 0.1); // Further reduced gravity for wider swinging
+        }
     }
 
     handleKeyDown(event) {
@@ -114,29 +124,30 @@ class VineSimulator {
     }
   
     animateVines() {
-        this.vines.forEach(vine => {
-            // Calculate pendulum physics
-            vine.angleAcceleration = -vine.gravity * Math.sin(vine.angle) * 0.5;
+        for (const vine of this.vines) {
+            // Update the angle based on velocity and acceleration
             vine.angleVelocity += vine.angleAcceleration;
-            vine.angleVelocity *= vine.damping;
             vine.angle += vine.angleVelocity;
-  
-            // Clear and redraw the vine
+    
+            // Apply damping to slow down the swinging
+            vine.angleVelocity *= vine.damping;
+    
+            // Apply gravity to the vine's angle acceleration
+            vine.angleAcceleration = -vine.gravity * Math.sin(vine.angle);
+    
+            // Draw the vine
             vine.graphics.clear();
             vine.graphics.lineStyle({
                 width: 4,
-                color: 0x008000,
+                color: 0x008000,  // Dark green color
                 alpha: 1
             });
-  
-            // Calculate end point of the vine using trigonometry
-            const endX = vine.anchorX + vine.length * Math.sin(vine.angle);
-            const endY = vine.anchorY + vine.length * Math.cos(vine.angle);
-  
-            // Draw the swinging vine
             vine.graphics.moveTo(vine.anchorX, vine.anchorY);
-            vine.graphics.lineTo(endX, endY);
-        });
+            vine.graphics.lineTo(
+                vine.anchorX + vine.length * Math.sin(vine.angle),
+                vine.anchorY + vine.length * Math.cos(vine.angle)
+            );
+        }
     }
 
     animateRedSquare() {
@@ -219,8 +230,8 @@ class VineSimulator {
             angle: Math.PI / 4 * Math.random(), // Random starting angle
             angleVelocity: 0,
             angleAcceleration: 0,
-            damping: 0.995,
-            gravity: 0.2 * (1 + Math.random() * 0.1) // Slight variation in gravity
+            damping: 0.995, // Increased damping for significantly slower swinging
+            gravity: 0.01 * (1 + Math.random() * 0.1) // Further reduced gravity for wider swinging
         };
     
         // Style the vine line
