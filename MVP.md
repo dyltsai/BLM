@@ -7,8 +7,8 @@
 #### Initialize core variables:
 - `score: int`
 - `isGameOver: boolean`
-- `monkey: Monkey`
-- `vines: List<Vine>`
+- `monkey: Monkey` Done
+- `vines: List<Vine>` Done
 - `obstacles: List<Obstacle>`
 - `time: double`
 
@@ -27,8 +27,8 @@
 #### Implement core variables:
 - `anchorPoint: Point`
 - `length: int`
-- `swingSpeed: double`
-- `currentAngle: double`
+- `swingSpeed: double` Done
+- `currentAngle: double` Done
 - `grabHeight: double`
 
 #### Implement essential methods:
@@ -45,14 +45,14 @@
 #### Core variables:
 - `position: Point`
 - `grabHeight: double`
-- `swingSpeed: double`
+- `swingSpeed: double` Done
 - `maxJumpHeight: double`
-- `jumpInProgress: boolean`
+- `jumpInProgress: boolean` Done
 
 #### Essential methods:
-- `jump()`
+- `jump()` Done
 - `resetJump()`
-- `landOnVine(vine: Vine, grabHeight: float)`
+- `landOnVine(vine: Vine, grabHeight: float)` Done
 
 ---
 
