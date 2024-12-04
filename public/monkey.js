@@ -3,62 +3,94 @@ class Monkey {
         this.app = app;
         this.redSquare = new PIXI.Graphics();
         this.redSquare.beginFill(0xff0000);
-        this.redSquare.drawRect(0, 0, 50, 50); // Draw a 50x50 red square
+        this.redSquare.drawRect(0, 0, 50, 50);
         this.redSquare.endFill();
-        this.redSquare.x = 0; // Left edge of the screen
-        this.redSquare.y = this.app.screen.height / 2 - 25; // Center vertically
-        this.app.stage.addChild(this.redSquare);
-        this.redSquareVelocity = 2;
+        
+        // Initialize position and state
         this.attachedVine = null;
-        this.jumpVelocityX = 5;
-        this.jumpVelocityY = -15;
-        this.gravity = 0.5; // Increased gravity for more pronounced parabolic motion
+        this.lastVineIndex = -1;
+        this.jumpVelocityX = 0;
+        this.jumpVelocityY = 0;
+        this.gravity = 0.5;
+        this.redSquareVelocity = 0;
+
+        // Add to stage but don't set position yet
+        this.app.stage.addChild(this.redSquare);
+    }
+
+    // New method to initialize with first vine
+    initializeWithVine(firstVine) {
+        this.attachedVine = firstVine;
+        this.lastVineIndex = 0;
+        const endX = firstVine.anchorX + firstVine.length * Math.sin(firstVine.angle);
+        const endY = firstVine.anchorY + firstVine.length * Math.cos(firstVine.angle);
+        this.redSquare.x = endX - 25;
+        this.redSquare.y = endY - 25;
     }
 
     animate(vines) {
         if (this.redSquareVelocity !== 0) {
-            // Move the red square left to right
             this.redSquare.x += this.redSquareVelocity;
-
-            // Bounce back when reaching the edges of the screen
             if (this.redSquare.x <= 0 || this.redSquare.x + 50 >= this.app.screen.width) {
                 this.redSquareVelocity *= -1;
             }
         }
 
-        // Check for collision with vines
-        for (const vine of vines) {
-            const startX = vine.anchorX;
-            const startY = vine.anchorY;
-            const endX = vine.anchorX + vine.length * Math.sin(vine.angle);
-            const endY = vine.anchorY + vine.length * Math.cos(vine.angle);
+        // Check collisions only with vines ahead of the last used vine
+        if (!this.attachedVine) {
+            for (let i = 0; i < vines.length; i++) {
+                if (i <= this.lastVineIndex) continue;
+                
+                const vine = vines[i];
+                const endX = vine.anchorX + vine.length * Math.sin(vine.angle);
+                const endY = vine.anchorY + vine.length * Math.cos(vine.angle);
 
-            if (this.checkCollision(this.redSquare, startX, startY, endX, endY) && vine !== this.attachedVine) {
-                this.redSquareVelocity = 0;
-                this.attachedVine = vine;
-                break; // Stop checking further if a collision is detected
+                if (this.checkCollision(this.redSquare, vine.anchorX, vine.anchorY, endX, endY)) {
+                    this.redSquareVelocity = 0;
+                    this.attachedVine = vine;
+                    this.lastVineIndex = i;
+                    break;
+                }
             }
         }
 
         if (this.attachedVine) {
-            // Follow the trajectory of the vine
             const vine = this.attachedVine;
             const endX = vine.anchorX + vine.length * Math.sin(vine.angle);
             const endY = vine.anchorY + vine.length * Math.cos(vine.angle);
-            this.redSquare.x = endX - 25; // Center the square on the vine's end point
+            this.redSquare.x = endX - 25;
             this.redSquare.y = endY - 25;
         } else {
-            // Apply parabolic motion
             this.redSquare.x += this.jumpVelocityX;
             this.redSquare.y += this.jumpVelocityY;
             this.jumpVelocityY += this.gravity;
 
-            // Check for ground collision (bottom of the screen)
             if (this.redSquare.y + 50 >= this.app.screen.height) {
                 this.redSquare.y = this.app.screen.height - 50;
                 this.jumpVelocityY = 0;
-                this.redSquareVelocity = 2; // Resume horizontal movement
+                this.redSquareVelocity = 2;
             }
+        }
+    }
+
+    jump() {
+        if (this.attachedVine) {
+            const vine = this.attachedVine;
+            // Calculate angular velocity based on vine's current state
+            const angularVelocity = vine.swingSpeed * vine.swingAmplitude * 
+                Math.cos(vine.time * vine.swingSpeed);
+            
+            // Base jump power
+            const baseJumpPower = 15;
+            
+            // Modify jump power based on vine's angular velocity
+            const jumpPower = baseJumpPower * (1 + Math.abs(angularVelocity) * 0.2);
+            
+            // Calculate jump direction based on vine angle and swing speed
+            this.jumpVelocityX = jumpPower * Math.sin(vine.angle) * Math.sign(angularVelocity);
+            this.jumpVelocityY = -jumpPower * Math.cos(vine.angle);
+            
+            this.attachedVine = null;
         }
     }
 

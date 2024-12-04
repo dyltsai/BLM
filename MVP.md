@@ -18,7 +18,7 @@
 - `updateGameLoop(deltaTime: float)`
 - `checkGameOver()`
 - `resetGame()`
-- `updateScore(int)`
+- `updateScore(int)` - done 
 
 ## Day 2
 
