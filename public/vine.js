@@ -12,15 +12,21 @@ class Vine {
     }
 
     update() {
+        // Update the angle based on velocity and acceleration
         this.angleVelocity += this.angleAcceleration;
         this.angle += this.angleVelocity;
+
+        // Apply damping to slow down the swinging
         this.angleVelocity *= this.damping;
+
+        // Apply gravity to the vine's angle acceleration
         this.angleAcceleration = -this.gravity * Math.sin(this.angle);
 
+        // Draw the vine
         this.graphics.clear();
         this.graphics.lineStyle({
             width: 4,
-            color: 0x008000,
+            color: 0x008000,  // Dark green color
             alpha: 1
         });
         this.graphics.moveTo(this.anchorX, this.anchorY);
