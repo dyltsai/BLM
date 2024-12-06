@@ -8,14 +8,26 @@ class GameManager {
         });
         document.body.appendChild(this.app.view);
 
+        // Initialize score
+        this.score = 0;
+        this.scoreText = new PIXI.Text('Score: 0', {
+            fontFamily: 'Arial',
+            fontSize: 24,
+            fill: 0x000000
+        });
+        this.scoreText.x = this.app.screen.width - 120;
+        this.scoreText.y = 20;
+        this.app.stage.addChild(this.scoreText);
+
         // Initialize the vine system and monkey
         this.vines = [];
         this.monkey = new Monkey(this.app);
+        this.lastVineIndex = -1; // Track the last vine the monkey was on
 
         // Create vines
         this.createVines();
 
-        // Animate vines and red square
+        // Animate vines and monkey
         this.app.ticker.add(this.animate.bind(this));
 
         window.addEventListener('keydown', this.handleKeyDown.bind(this));
@@ -25,26 +37,35 @@ class GameManager {
         const screenWidth = this.app.screen.width;
         const screenHeight = this.app.screen.height;
 
-        // Vine lengths (proportional to screen height, ensuring they end before bottom)
         const lengths = [
-            screenHeight * 0.6,  // Short vine
-            screenHeight * 0.75, // Medium vine
-            screenHeight * 0.5   // Shortest vine
+            screenHeight * 0.6,
+            screenHeight * 0.75,
+            screenHeight * 0.5
         ];
 
-        // Vine positions across the screen
         const xPositions = [
-            screenWidth * 0.25,  // Left
-            screenWidth * 0.5,   // Center
-            screenWidth * 0.75   // Right
+            screenWidth * 0.25,
+            screenWidth * 0.5,
+            screenWidth * 0.75
         ];
 
-        // Create three vines with different characteristics
+        const baseAngle = 6;
+        const baseAmplitude = 1;
+        const baseSpeed = Math.PI;
+
         for (let i = 0; i < 3; i++) {
-            const vine = new Vine(xPositions[i], lengths[i], Math.PI / 4 * (i + 1) / 2, 0.2 * (1 + i * 0.1));
+            const randomAmplitude = baseAmplitude * (1 + (Math.random() * 0.3 - 0.15));
+            const randomSpeed = baseSpeed * (1 + (Math.random() * 0.3 - 0.15));
+
+            const vine = new Vine(xPositions[i], lengths[i], baseAngle);
+            vine.swingAmplitude = randomAmplitude;
+            vine.swingSpeed = randomSpeed;
+
             this.vines.push(vine);
             this.app.stage.addChild(vine.graphics);
         }
+        this.monkey.initializeWithVine(this.vines[0]);
+ 
     }
 
     animate() {
@@ -54,19 +75,21 @@ class GameManager {
         }
 
         this.monkey.animate(this.vines);
+
+        // Check for score updates
+        if (this.monkey.attachedVine) {
+            const currentVineIndex = this.vines.indexOf(this.monkey.attachedVine);
+            if (currentVineIndex !== this.lastVineIndex && this.lastVineIndex !== -1) {
+                this.score++;
+                this.scoreText.text = `Score: ${this.score}`;
+            }
+            this.lastVineIndex = currentVineIndex;
+        }
     }
 
     handleKeyDown(event) {
         if (event.code === 'Space') {
-            // Start moving the red square again if it has stopped
-            if (this.monkey.redSquareVelocity === 0 && this.monkey.attachedVine) {
-                const vine = this.monkey.attachedVine;
-                this.monkey.jumpVelocityX = 5 * Math.cos(vine.angle); // Adjust the multiplier for desired speed
-                this.monkey.jumpVelocityY = -15 * Math.sin(vine.angle); // Adjust the multiplier for desired speed
-                this.monkey.attachedVine = null;
-            } else if (this.monkey.redSquareVelocity === 0) {
-                this.monkey.redSquareVelocity = 2;
-            }
+            this.monkey.jump();
         }
     }
 }

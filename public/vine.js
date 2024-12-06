@@ -4,29 +4,21 @@ class Vine {
         this.anchorX = xPosition;
         this.anchorY = 0;
         this.length = length;
-        this.angle = angle;
-        this.angleVelocity = 0;
-        this.angleAcceleration = 0;
-        this.damping = 0.995;
-        this.gravity = gravity;
+        this.baseAngle = angle;
+        this.swingAmplitude = Math.PI / 4;
+        this.swingSpeed = Math.PI;
+        this.time = Math.random() * Math.PI * 2; // Random starting phase
     }
 
     update() {
-        // Update the angle based on velocity and acceleration
-        this.angleVelocity += this.angleAcceleration;
-        this.angle += this.angleVelocity;
+        this.time += 0.016;
+        this.angle = this.baseAngle +
+            this.swingAmplitude * Math.sin(this.time * this.swingSpeed);
 
-        // Apply damping to slow down the swinging
-        this.angleVelocity *= this.damping;
-
-        // Apply gravity to the vine's angle acceleration
-        this.angleAcceleration = -this.gravity * Math.sin(this.angle);
-
-        // Draw the vine
         this.graphics.clear();
         this.graphics.lineStyle({
             width: 4,
-            color: 0x008000,  // Dark green color
+            color: 0x008000,
             alpha: 1
         });
         this.graphics.moveTo(this.anchorX, this.anchorY);
