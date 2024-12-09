@@ -8,6 +8,9 @@ class GameManager {
         });
         document.body.appendChild(this.app.view);
 
+        // Game over state
+        this.isGameOver = false;
+
         // Initialize score
         this.score = 0;
         this.scoreText = new PIXI.Text('Score: 0', {
@@ -69,6 +72,8 @@ class GameManager {
     }
 
     animate() {
+        if (this.isGameOver) return;
+
         // Update vines and monkey
         for (const vine of this.vines) {
             vine.update();
@@ -85,14 +90,51 @@ class GameManager {
             }
             this.lastVineIndex = currentVineIndex;
         }
+
+        // Check if the monkey has hit the ground
+        if (this.monkey.redSquare.y + 50 >= this.app.screen.height) {
+            this.endGame();
+        }
     }
 
     handleKeyDown(event) {
-        if (event.code === 'Space') {
+        if (event.code === 'Space' && !this.isGameOver) {
             this.monkey.jump();
         }
     }
+
+    endGame() {
+        this.isGameOver = true;
+
+        // Display Game Over Text
+        const gameOverText = new PIXI.Text('Game Over', {
+            fontFamily: 'Arial',
+            fontSize: 48,
+            fill: 0xff0000,
+            align: 'center'
+        });
+        gameOverText.anchor.set(0.5);
+        gameOverText.x = this.app.screen.width / 2;
+        gameOverText.y = this.app.screen.height / 2 - 50;
+        this.app.stage.addChild(gameOverText);
+
+        // Display Replay Button
+        const replayButton = document.createElement('button');
+        replayButton.innerText = 'Replay';
+        replayButton.style.position = 'absolute';
+        replayButton.style.left = `${this.app.screen.width / 2 - 50}px`;
+        replayButton.style.top = `${this.app.screen.height / 2 + 10}px`;
+        replayButton.style.padding = '10px 20px';
+        replayButton.style.fontSize = '16px';
+        document.body.appendChild(replayButton);
+
+        replayButton.addEventListener('click', () => {
+            document.body.removeChild(replayButton);
+            location.reload();
+        });
+    }
 }
+
 
 // Initialize the game manager when the page loads
 document.addEventListener('DOMContentLoaded', () => {
