@@ -87,7 +87,7 @@ class Monkey {
             
             // Calculate jump direction based on vine angle and swing speed
             this.jumpVelocityX = jumpPower * Math.sin(vine.angle + Math.PI/2) * Math.sign(angularVelocity);
-            this.jumpVelocityY = -jumpPower * Math.cos(vine.angle - Math.PI/3);
+            this.jumpVelocityY = -jumpPower * Math.cos(vine.angle - (3 * Math.PI/7));
             
             this.attachedVine = null;
         }
