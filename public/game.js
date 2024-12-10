@@ -23,6 +23,8 @@ class GameManager {
         this.vines = [];
         this.monkey = new Monkey(this.app);
         this.lastVineIndex = -1; // Track the last vine the monkey was on
+        this.lastVineX = this.app.screen.width; // Track the position of the last generated vine
+
 
         // Create vines
         this.createVines();
@@ -35,7 +37,6 @@ class GameManager {
         this.scrollSpeed = 5; // Scroll speed for testing
 
         window.addEventListener('keydown', this.handleKeyDown.bind(this));
-        window.addEventListener('keyup', this.handleKeyUp.bind(this));
     }
 
     createVines() {
@@ -74,13 +75,14 @@ class GameManager {
 
     animate() {
         if (this.isGameOver) return;
-
+    
         // Update vines and monkey
         for (const vine of this.vines) {
             vine.update();
         }
-
+    
         this.monkey.animate(this.vines);
+    
         // Check for score updates
         if (this.monkey.attachedVine) {
             const currentVineIndex = this.vines.indexOf(this.monkey.attachedVine);
@@ -90,53 +92,67 @@ class GameManager {
             }
             this.lastVineIndex = currentVineIndex;
         }
-
-        // Handle left and right scrolling
-        if (this.keys['l']) {
-            this.scrollRight();
+    
+        // Automatic scrolling if the monkey jumps
+        const monkeyRightEdge = this.monkey.redSquare.x + 50; // Right side of the monkey
+        const leftBoundary = this.app.screen.width * 0.70; // Target area for the monkey (left 50% of the screen)
+    
+        if (monkeyRightEdge > leftBoundary) {
+            const scrollAmount = monkeyRightEdge - leftBoundary;
+            this.scrollLeft(-scrollAmount); 
         }
-        if (this.keys['j']) {
-            this.scrollLeft();
-        }
 
-        // // Keep score fixed at the top right of the screen
-        // this.scoreText.x = this.app.screen.width - 120; // Always relative to screen
-        // this.scoreText.y = 20; // Fixed Y position
-
+        this.generateNewVines();
+    
+        // Keep score fixed at the top right of the screen
+        this.scoreText.x = this.app.screen.width - 120; // Always relative to screen
+        this.scoreText.y = 20; // Fixed Y position
+    
         // Check if the monkey has hit the ground
         if (this.monkey.redSquare.y + 50 >= this.app.screen.height) {
             this.endGame();
         }
-
     }
-
-    scrollRight() {
-        // Move all game objects left to simulate "scrolling right"
-        this.app.stage.children.forEach(child => {
-            if (child !== this.scoreText) { // Don't scroll the score text
-                child.x -= this.scrollSpeed;
-            }
-        });
-    }
-
-    scrollLeft() {
+    
+    scrollLeft(scrollAmount) {
         // Move all game objects right to simulate "scrolling left"
         this.app.stage.children.forEach(child => {
             if (child !== this.scoreText) { // Don't scroll the score text
-                child.x += this.scrollSpeed;
+                child.x += scrollAmount;
             }
         });
     }
+
+    generateNewVines() {
+        const screenWidth = this.app.screen.width;
+        const buffer = 100;
+
+        if (this.lastVineX < screenWidth + buffer) {
+            const x = this.lastVineX + Math.random() * 200 + 200; 
+            const length = this.app.screen.height * 0.5 + Math.random() * 100 - 50;
+            const angle = (Math.random() * 20 - 10) * (Math.PI / 180);
+            const vine = new Vine(x, length, angle);
+            this.vines.push(vine);
+            this.app.stage.addChild(vine.graphics);
+            this.lastVineX = x;
+        }
+
+        // Remove old vines that are far off-screen
+        this.vines = this.vines.filter(vine => {
+            if (vine.anchorX + vine.length < -100) {
+                vine.graphics.destroy();
+                return false;
+            }
+            return true;
+        });
+    }
+    
 
     handleKeyDown(event) {
         this.keys[event.key] = true;
         if (event.key === ' ') {
             this.monkey.jump();
         }
-    }
-
-    handleKeyUp(event) {
-        this.keys[event.key] = false;
     }
 
     endGame() {
