@@ -23,6 +23,8 @@ class GameManager {
         this.vines = [];
         this.monkey = new Monkey(this.app);
         this.lastVineIndex = -1; // Track the last vine the monkey was on
+        this.lastVineX = this.app.screen.width; // Track the position of the last generated vine
+
 
         // Create vines
         this.createVines();
@@ -79,8 +81,9 @@ class GameManager {
         for (const vine of this.vines) {
             vine.update();
         }
-
+    
         this.monkey.animate(this.vines);
+
         // Check for score updates
         if (this.monkey.attachedVine) {
             const currentVineIndex = this.vines.indexOf(this.monkey.attachedVine);
@@ -127,6 +130,31 @@ class GameManager {
             }
         });
     }
+
+    generateNewVines() {
+        const screenWidth = this.app.screen.width;
+        const buffer = 100;
+
+        if (this.lastVineX < screenWidth + buffer) {
+            const x = this.lastVineX + Math.random() * 200 + 200; 
+            const length = this.app.screen.height * 0.5 + Math.random() * 100 - 50;
+            const angle = (Math.random() * 20 - 10) * (Math.PI / 180);
+            const vine = new Vine(x, length, angle);
+            this.vines.push(vine);
+            this.app.stage.addChild(vine.graphics);
+            this.lastVineX = x;
+        }
+
+        // Remove old vines that are far off-screen
+        this.vines = this.vines.filter(vine => {
+            if (vine.anchorX + vine.length < -100) {
+                vine.graphics.destroy();
+                return false;
+            }
+            return true;
+        });
+    }
+    
 
     handleKeyDown(event) {
         this.keys[event.key] = true;
