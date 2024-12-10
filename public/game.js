@@ -113,6 +113,15 @@ class GameManager {
             this.endGame();
         }
     }
+    
+    scrollLeft(scrollAmount) {
+        // Move all game objects right to simulate "scrolling left"
+        this.app.stage.children.forEach(child => {
+            if (child !== this.scoreText) { // Don't scroll the score text
+                child.x += scrollAmount;
+            }
+        });
+    }
 
     generateNewVines() {
         const screenWidth = this.app.screen.width;
