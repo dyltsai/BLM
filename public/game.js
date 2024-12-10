@@ -37,6 +37,7 @@ class GameManager {
         this.scrollSpeed = 5; // Scroll speed for testing
 
         window.addEventListener('keydown', this.handleKeyDown.bind(this));
+        window.addEventListener('keyup', this.handleKeyUp.bind(this));
     }
 
     createVines() {
@@ -75,14 +76,14 @@ class GameManager {
 
     animate() {
         if (this.isGameOver) return;
-    
+
         // Update vines and monkey
         for (const vine of this.vines) {
             vine.update();
         }
     
         this.monkey.animate(this.vines);
-    
+
         // Check for score updates
         if (this.monkey.attachedVine) {
             const currentVineIndex = this.vines.indexOf(this.monkey.attachedVine);
@@ -92,33 +93,40 @@ class GameManager {
             }
             this.lastVineIndex = currentVineIndex;
         }
-    
-        // Automatic scrolling if the monkey jumps
-        const monkeyRightEdge = this.monkey.redSquare.x + 50; // Right side of the monkey
-        const leftBoundary = this.app.screen.width * 0.70; // Target area for the monkey (left 50% of the screen)
-    
-        if (monkeyRightEdge > leftBoundary) {
-            const scrollAmount = monkeyRightEdge - leftBoundary;
-            this.scrollLeft(-scrollAmount); 
+
+        // Handle left and right scrolling
+        if (this.keys['l']) {
+            this.scrollRight();
+        }
+        if (this.keys['j']) {
+            this.scrollLeft();
         }
 
-        this.generateNewVines();
-    
-        // Keep score fixed at the top right of the screen
-        this.scoreText.x = this.app.screen.width - 120; // Always relative to screen
-        this.scoreText.y = 20; // Fixed Y position
-    
+        // // Keep score fixed at the top right of the screen
+        // this.scoreText.x = this.app.screen.width - 120; // Always relative to screen
+        // this.scoreText.y = 20; // Fixed Y position
+
         // Check if the monkey has hit the ground
         if (this.monkey.redSquare.y + 50 >= this.app.screen.height) {
             this.endGame();
         }
+
     }
-    
-    scrollLeft(scrollAmount) {
+
+    scrollRight() {
+        // Move all game objects left to simulate "scrolling right"
+        this.app.stage.children.forEach(child => {
+            if (child !== this.scoreText) { // Don't scroll the score text
+                child.x -= this.scrollSpeed;
+            }
+        });
+    }
+
+    scrollLeft() {
         // Move all game objects right to simulate "scrolling left"
         this.app.stage.children.forEach(child => {
             if (child !== this.scoreText) { // Don't scroll the score text
-                child.x += scrollAmount;
+                child.x += this.scrollSpeed;
             }
         });
     }
@@ -153,6 +161,10 @@ class GameManager {
         if (event.key === ' ') {
             this.monkey.jump();
         }
+    }
+
+    handleKeyUp(event) {
+        this.keys[event.key] = false;
     }
 
     endGame() {
