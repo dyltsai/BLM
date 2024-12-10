@@ -120,39 +120,49 @@ class GameManager {
                 child.x -= this.scrollSpeed;
             }
         });
+
+        this.generateNewVines();
     }
 
-    scrollLeft() {
-        // Move all game objects right to simulate "scrolling left"
-        this.app.stage.children.forEach(child => {
-            if (child !== this.scoreText) { // Don't scroll the score text
-                child.x += this.scrollSpeed;
-            }
-        });
-    }
+    // scrollLeft(scrollAmount) {
+    //     // Move all game objects right to simulate "scrolling left"
+    //     this.app.stage.children.forEach(child => {
+    //         if (child !== this.scoreText) { // Don't scroll the score text
+    //             child.x += scrollAmount;
+    //         }
+    //     });
+    
+    //     // Generate new vines after scrolling
+    //     this.generateNewVines();
+    // }
 
     generateNewVines() {
         const screenWidth = this.app.screen.width;
-        const buffer = 100;
+        const screenHeight = this.app.screen.height;
 
-        if (this.lastVineX < screenWidth + buffer) {
-            const x = this.lastVineX + Math.random() * 200 + 200; 
-            const length = this.app.screen.height * 0.5 + Math.random() * 100 - 50;
-            const angle = (Math.random() * 20 - 10) * (Math.PI / 180);
-            const vine = new Vine(x, length, angle);
+        // Check if we need to generate new vines
+        const lastVine = this.vines[this.vines.length - 1];
+        if (lastVine.graphics.x + lastVine.length < screenWidth) {
+            const lengths = [
+                screenHeight * 0.6,
+                screenHeight * 0.75,
+                screenHeight * 0.5
+            ];
+
+            const baseAngle = 6;
+            const baseAmplitude = 1;
+            const baseSpeed = Math.PI;
+
+            const randomAmplitude = baseAmplitude * (1 + (Math.random() * 0.3 - 0.15));
+            const randomSpeed = baseSpeed * (1 + (Math.random() * 0.3 - 0.15));
+
+            const vine = new Vine(screenWidth, lengths[Math.floor(Math.random() * lengths.length)], baseAngle);
+            vine.swingAmplitude = randomAmplitude;
+            vine.swingSpeed = randomSpeed;
+
             this.vines.push(vine);
             this.app.stage.addChild(vine.graphics);
-            this.lastVineX = x;
         }
-
-        // Remove old vines that are far off-screen
-        this.vines = this.vines.filter(vine => {
-            if (vine.anchorX + vine.length < -100) {
-                vine.graphics.destroy();
-                return false;
-            }
-            return true;
-        });
     }
     
 
