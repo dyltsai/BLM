@@ -77,8 +77,7 @@ class Monkey {
         if (this.attachedVine) {
             const vine = this.attachedVine;
             // Calculate angular velocity based on vine's current state
-            const angularVelocity = vine.swingSpeed * vine.swingAmplitude * 
-                Math.cos(vine.time * vine.swingSpeed);
+            const angularVelocity = vine.swingSpeed * vine.swingAmplitude * Math.cos(vine.time * vine.swingSpeed);
             
             // Base jump power
             const baseJumpPower = 15;
@@ -87,8 +86,15 @@ class Monkey {
             const jumpPower = baseJumpPower * (1 + Math.abs(angularVelocity) * 0.2);
             
             // Calculate jump direction based on vine angle and swing speed
-            this.jumpVelocityX = jumpPower * Math.sin(vine.angle) * Math.sign(angularVelocity);
-            this.jumpVelocityY = -jumpPower * Math.cos(vine.angle);
+            this.jumpVelocityX = jumpPower * Math.sin(vine.angle + Math.PI/2) * Math.sign(angularVelocity);
+            if(angularVelocity > 0)
+            {
+                this.jumpVelocityY = -jumpPower * Math.cos(vine.angle - (3 * Math.PI/7));
+            }
+            else{
+                const jumpPower = baseJumpPower * (1 - Math.abs(angularVelocity) * 0.2);
+                this.jumpVelocityY = -jumpPower * Math.cos(vine.angle - (3 * Math.PI/7));
+            }
             
             this.attachedVine = null;
         }

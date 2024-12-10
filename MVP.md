@@ -63,7 +63,7 @@
   - Vine swinging physics
   - Monkey jumping mechanics
   - Game loop stability
-  - Score tracking
+  - Score tracking <!-- works -->
 
 - Bug fixes and performance optimization.
 - Final testing and refinement.
