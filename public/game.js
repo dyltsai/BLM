@@ -95,8 +95,6 @@ class GameManager {
         if (this.monkey.redSquare.y + 50 >= this.app.screen.height) {
             this.endGame();
         }
-
-    
     }
 
     handleKeyDown(event) {

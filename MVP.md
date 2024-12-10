@@ -60,8 +60,8 @@
 
 - Implement any P1 features if time permits.
 - Thorough testing of core mechanics:
-  - Vine swinging physics 
-  - Monkey jumping mechanics <!-- fixed-->
+  - Vine swinging physics
+  - Monkey jumping mechanics
   - Game loop stability
   - Score tracking
 
