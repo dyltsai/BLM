@@ -115,16 +115,8 @@ class GameManager {
         this.generateNewVines(); // Adjust vine generation based on new camera offset
     }
     
-    scrollLeft(scrollAmount) {
-        // Move all game objects to the right to simulate scrolling left
-        this.app.stage.children.forEach(child => {
-            if (child !== this.scoreText) { // Don't move the score text
-                child.x += scrollAmount;
-            }
-        });
-    
-        // Adjust the camera's offset to simulate moving the screen left
-        this.cameraOffsetX -= scrollAmount;
+    scrollLeft() {
+        this.cameraOffsetX += this.scrollSpeed;
     }
     
     
