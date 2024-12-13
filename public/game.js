@@ -112,7 +112,7 @@ class GameManager {
 
     scrollRight() {
         this.cameraOffsetX -= this.scrollSpeed;
-        this.generateNewVines(); // Adjust vine generation based on new camera offset
+        this.generateNewVineInRightThird(); // Adjust vine generation based on new camera offset
     }
     
     scrollLeft() {
@@ -160,6 +160,35 @@ class GameManager {
             setTimeout(() => {
                 this.canGenerateVines = true;
             }, 100); // Adjust the delay as needed
+        }
+    }
+    
+    generateNewVineInRightThird() {
+        const screenWidth = this.app.screen.width;
+        const screenHeight = this.app.screen.height;
+    
+        // Calculate the rightmost third of the screen (for example, 2/3 of the screen width to the right)
+        const rightThirdStartX = 2 * screenWidth / 3; // The x-coordinate of the start of the right third
+    
+        // Ensure we don't generate multiple vines in the same third
+        const lastVine = this.vines[this.vines.length - 1];
+    
+        if (lastVine && lastVine.graphics.x + lastVine.graphics.width < rightThirdStartX) {
+            // Only create a vine if the last vine is to the left of the right third of the screen
+            const randomLength = screenHeight * (0.6 + Math.random() * 0.2);  // Randomize length
+            const randomAngle = Math.PI / 4 + Math.random() * 0.2;  // Randomize angle
+    
+            // Create a new vine to appear in the rightmost third
+            const newVineX = rightThirdStartX + Math.random() * (screenWidth / 3);  // Randomize position within the right third
+            const newVine = new Vine(newVineX, randomLength, randomAngle);
+    
+            // Randomize swing properties for added variety
+            newVine.swingAmplitude = 1 + Math.random() * 0.3;
+            newVine.swingSpeed = Math.PI * (1 + Math.random() * 0.3);
+    
+            // Add the new vine to the vines array and to the stage
+            this.vines.push(newVine);
+            this.app.stage.addChild(newVine.graphics);
         }
     }
     
