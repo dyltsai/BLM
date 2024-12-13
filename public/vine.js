@@ -21,6 +21,7 @@ class Vine {
             color: 0x008000,
             alpha: 1
         });
+    
         // Apply camera offset to vine rendering
         this.graphics.moveTo(this.anchorX + cameraOffsetX, this.anchorY); // Apply camera offset
         this.graphics.lineTo(

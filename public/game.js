@@ -77,7 +77,8 @@ class GameManager {
 
     animate() {
         if (this.isGameOver) return;
-    
+        // Inside the GameManager's animate() method
+
         // Update vines and monkey (apply camera offset)
         for (const vine of this.vines) {
             vine.update(this.cameraOffsetX);
@@ -102,6 +103,10 @@ class GameManager {
         if (this.keys['a']) {
             this.scrollLeft();
         }
+        // Collision check: if the monkey hits the bottom of the screen
+    if (this.monkey.redSquare.y + 50 >= this.app.screen.height) {
+        this.endGame(); // End the game when the red square hits the bottom
+    }
     }
     
 
@@ -111,20 +116,18 @@ class GameManager {
     }
     
     scrollLeft(scrollAmount) {
-        this.cameraOffsetX += scrollAmount;
-    }
-    
-
-    scrollLeft(scrollAmount) {
-        // Move all game objects right to simulate "scrolling left"
+        // Move all game objects to the right to simulate scrolling left
         this.app.stage.children.forEach(child => {
-            if (child !== this.scoreText) { // Don't scroll the score text
+            if (child !== this.scoreText) { // Don't move the score text
                 child.x += scrollAmount;
             }
         });
-
+    
+        // Adjust the camera's offset to simulate moving the screen left
+        this.cameraOffsetX -= scrollAmount;
     }
-
+    
+    
     generateNewVines() {
         const screenWidth = this.app.screen.width;
         const screenHeight = this.app.screen.height;
@@ -138,7 +141,7 @@ class GameManager {
         const averageDistance = lastVine.graphics.x - secondLastVine.graphics.x;
     
         // Check if we need to generate new vines
-        if (lastVine.graphics.x < screenWidth && this.canGenerateVines) {
+        if (lastVine.graphics.x + this.cameraOffsetX < screenWidth && this.canGenerateVines) {
             const lengths = [
                 screenHeight * 0.6,
                 screenHeight * 0.75,
@@ -152,6 +155,7 @@ class GameManager {
             const randomAmplitude = baseAmplitude * (1 + (Math.random() * 0.3 - 0.15));
             const randomSpeed = baseSpeed * (1 + (Math.random() * 0.3 - 0.15));
     
+            // Generate new vine starting after the last vine
             const vine = new Vine(lastVine.graphics.x + averageDistance, lengths[Math.floor(Math.random() * lengths.length)], baseAngle);
             vine.swingAmplitude = randomAmplitude;
             vine.swingSpeed = randomSpeed;
@@ -166,6 +170,7 @@ class GameManager {
             }, 100); // Adjust the delay as needed
         }
     }
+    
     
 
     handleKeyDown(event) {
@@ -210,6 +215,7 @@ class GameManager {
         });
     }
 }
+
 
 
 // Initialize the game manager when the page loads
