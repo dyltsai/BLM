@@ -44,36 +44,49 @@ class GameManager {
     createVines() {
         const screenWidth = this.app.screen.width;
         const screenHeight = this.app.screen.height;
-
+    
+        // Vine settings (lengths, etc.)
         const lengths = [
             screenHeight * 0.6,
             screenHeight * 0.75,
             screenHeight * 0.5
         ];
-
+    
         const xPositions = [
             screenWidth * 0.25,
             screenWidth * 0.5,
             screenWidth * 0.75
         ];
-
+    
         const baseAngle = 6;
         const baseAmplitude = 1;
         const baseSpeed = Math.PI;
-
-        for (let i = 0; i < 3; i++) {
+    
+        // We'll generate 6 vines initially
+        const totalVinesToGenerate = 6;
+    
+        for (let i = 0; i < totalVinesToGenerate; i++) {
             const randomAmplitude = baseAmplitude * (1 + (Math.random() * 0.3 - 0.15));
             const randomSpeed = baseSpeed * (1 + (Math.random() * 0.3 - 0.15));
-
-            const vine = new Vine(xPositions[i], lengths[i], baseAngle);
+    
+            // Calculate X position for each vine, spaced out evenly
+            const xPosition = (screenWidth / (totalVinesToGenerate + 1)) * (i + 1);
+    
+            // Randomly pick vine length
+            const length = lengths[Math.floor(Math.random() * lengths.length)];
+    
+            const vine = new Vine(xPosition, length, baseAngle);
             vine.swingAmplitude = randomAmplitude;
             vine.swingSpeed = randomSpeed;
-
+    
             this.vines.push(vine);
             this.app.stage.addChild(vine.graphics);
         }
+    
+        // Initialize monkey with the first vine
         this.monkey.initializeWithVine(this.vines[0]);
     }
+    
 
     animate() {
         if (this.isGameOver) return;
@@ -112,7 +125,7 @@ class GameManager {
 
     scrollRight() {
         this.cameraOffsetX -= this.scrollSpeed;
-        this.generateNewVineInRightThird(); // Adjust vine generation based on new camera offset
+        this.generateNewVines(); // Adjust vine generation based on new camera offset
     }
     
     scrollLeft() {
@@ -124,16 +137,15 @@ class GameManager {
         const screenWidth = this.app.screen.width;
         const screenHeight = this.app.screen.height;
     
-        // Calculate the average distance between existing vines
-        const vineCount = this.vines.length;
-        if (vineCount < 2) return;
+        // Get the x position of the rightmost vine
+        const lastVine = this.vines[this.vines.length - 1];
     
-        const lastVine = this.vines[vineCount - 1];
-        const secondLastVine = this.vines[vineCount - 2];
-        const averageDistance = lastVine.graphics.x - secondLastVine.graphics.x;
+        // Calculate the new vine's x position (right of the last vine)
+        const newVineX = lastVine.graphics.x + lastVine.graphics.width + 150;  // Adjust '150' as needed for spacing
     
-        // Check if we need to generate new vines
-        if (lastVine.graphics.x + this.cameraOffsetX < screenWidth && this.canGenerateVines) {
+        // Only generate a new vine if the rightmost vine has passed the screen edge
+        if (newVineX > screenWidth) {
+            // Vine length and other properties
             const lengths = [
                 screenHeight * 0.6,
                 screenHeight * 0.75,
@@ -144,53 +156,20 @@ class GameManager {
             const baseAmplitude = 1;
             const baseSpeed = Math.PI;
     
+            // Randomize swing amplitude and speed
             const randomAmplitude = baseAmplitude * (1 + (Math.random() * 0.3 - 0.15));
             const randomSpeed = baseSpeed * (1 + (Math.random() * 0.3 - 0.15));
     
-            // Generate new vine starting after the last vine
-            const vine = new Vine(lastVine.graphics.x + averageDistance, lengths[Math.floor(Math.random() * lengths.length)], baseAngle);
+            // Create new vine and add to the stage
+            const vine = new Vine(newVineX, lengths[Math.floor(Math.random() * lengths.length)], baseAngle);
             vine.swingAmplitude = randomAmplitude;
             vine.swingSpeed = randomSpeed;
     
             this.vines.push(vine);
             this.app.stage.addChild(vine.graphics);
-    
-            // Prevent further vine generation until the next frame
-            this.canGenerateVines = false;
-            setTimeout(() => {
-                this.canGenerateVines = true;
-            }, 100); // Adjust the delay as needed
         }
     }
     
-    generateNewVineInRightThird() {
-        const screenWidth = this.app.screen.width;
-        const screenHeight = this.app.screen.height;
-    
-        // Calculate the rightmost third of the screen (for example, 2/3 of the screen width to the right)
-        const rightThirdStartX = 2 * screenWidth / 3; // The x-coordinate of the start of the right third
-    
-        // Ensure we don't generate multiple vines in the same third
-        const lastVine = this.vines[this.vines.length - 1];
-    
-        if (lastVine && lastVine.graphics.x + lastVine.graphics.width < rightThirdStartX) {
-            // Only create a vine if the last vine is to the left of the right third of the screen
-            const randomLength = screenHeight * (0.6 + Math.random() * 0.2);  // Randomize length
-            const randomAngle = Math.PI / 4 + Math.random() * 0.2;  // Randomize angle
-    
-            // Create a new vine to appear in the rightmost third
-            const newVineX = rightThirdStartX + Math.random() * (screenWidth / 3);  // Randomize position within the right third
-            const newVine = new Vine(newVineX, randomLength, randomAngle);
-    
-            // Randomize swing properties for added variety
-            newVine.swingAmplitude = 1 + Math.random() * 0.3;
-            newVine.swingSpeed = Math.PI * (1 + Math.random() * 0.3);
-    
-            // Add the new vine to the vines array and to the stage
-            this.vines.push(newVine);
-            this.app.stage.addChild(newVine.graphics);
-        }
-    }
     
     
 
