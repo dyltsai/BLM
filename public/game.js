@@ -24,6 +24,7 @@ class GameManager {
         this.monkey = new Monkey(this.app);
         this.lastVineIndex = -1; // Track the last vine the monkey was on
         this.lastVineX = this.app.screen.width; // Track the position of the last generated vine
+        this.cameraOffsetX = 0; // Horizontal scroll offset
 
 
         // Create vines
@@ -76,14 +77,14 @@ class GameManager {
 
     animate() {
         if (this.isGameOver) return;
-
-        // Update vines and monkey
+    
+        // Update vines and monkey (apply camera offset)
         for (const vine of this.vines) {
-            vine.update();
+            vine.update(this.cameraOffsetX);
         }
     
-        this.monkey.animate(this.vines);
-
+        this.monkey.animate(this.vines, this.cameraOffsetX);
+    
         // Check for score updates
         if (this.monkey.attachedVine) {
             const currentVineIndex = this.vines.indexOf(this.monkey.attachedVine);
@@ -93,75 +94,76 @@ class GameManager {
             }
             this.lastVineIndex = currentVineIndex;
         }
-
-        // Handle left and right scrolling
-        if (this.keys['l']) {
+    
+        // Handle left and right scrolling (adjust for camera offset)
+        if (this.keys['d']) {
             this.scrollRight();
         }
-        if (this.keys['j']) {
+        if (this.keys['a']) {
             this.scrollLeft();
         }
-
-        // // Keep score fixed at the top right of the screen
-        // this.scoreText.x = this.app.screen.width - 120; // Always relative to screen
-        // this.scoreText.y = 20; // Fixed Y position
-
-        // Check if the monkey has hit the ground
-        if (this.monkey.redSquare.y + 50 >= this.app.screen.height) {
-            this.endGame();
-        }
-
     }
+    
 
     scrollRight() {
-        // Move all game objects left to simulate "scrolling right"
+        this.cameraOffsetX -= this.scrollSpeed;
+        this.generateNewVines(); // Adjust vine generation based on new camera offset
+    }
+    
+    scrollLeft(scrollAmount) {
+        this.cameraOffsetX += scrollAmount;
+    }
+    
+
+    scrollLeft(scrollAmount) {
+        // Move all game objects right to simulate "scrolling left"
         this.app.stage.children.forEach(child => {
             if (child !== this.scoreText) { // Don't scroll the score text
-                child.x -= this.scrollSpeed;
+                child.x += scrollAmount;
             }
         });
 
-        this.generateNewVines();
     }
-
-    // scrollLeft(scrollAmount) {
-    //     // Move all game objects right to simulate "scrolling left"
-    //     this.app.stage.children.forEach(child => {
-    //         if (child !== this.scoreText) { // Don't scroll the score text
-    //             child.x += scrollAmount;
-    //         }
-    //     });
-    
-    //     // Generate new vines after scrolling
-    //     this.generateNewVines();
-    // }
 
     generateNewVines() {
         const screenWidth = this.app.screen.width;
         const screenHeight = this.app.screen.height;
-
+    
+        // Calculate the average distance between existing vines
+        const vineCount = this.vines.length;
+        if (vineCount < 2) return;
+    
+        const lastVine = this.vines[vineCount - 1];
+        const secondLastVine = this.vines[vineCount - 2];
+        const averageDistance = lastVine.graphics.x - secondLastVine.graphics.x;
+    
         // Check if we need to generate new vines
-        const lastVine = this.vines[this.vines.length - 1];
-        if (lastVine.graphics.x + lastVine.length < screenWidth) {
+        if (lastVine.graphics.x < screenWidth && this.canGenerateVines) {
             const lengths = [
                 screenHeight * 0.6,
                 screenHeight * 0.75,
                 screenHeight * 0.5
             ];
-
+    
             const baseAngle = 6;
             const baseAmplitude = 1;
             const baseSpeed = Math.PI;
-
+    
             const randomAmplitude = baseAmplitude * (1 + (Math.random() * 0.3 - 0.15));
             const randomSpeed = baseSpeed * (1 + (Math.random() * 0.3 - 0.15));
-
-            const vine = new Vine(screenWidth, lengths[Math.floor(Math.random() * lengths.length)], baseAngle);
+    
+            const vine = new Vine(lastVine.graphics.x + averageDistance, lengths[Math.floor(Math.random() * lengths.length)], baseAngle);
             vine.swingAmplitude = randomAmplitude;
             vine.swingSpeed = randomSpeed;
-
+    
             this.vines.push(vine);
             this.app.stage.addChild(vine.graphics);
+    
+            // Prevent further vine generation until the next frame
+            this.canGenerateVines = false;
+            setTimeout(() => {
+                this.canGenerateVines = true;
+            }, 100); // Adjust the delay as needed
         }
     }
     

@@ -28,24 +28,24 @@ class Monkey {
         this.redSquare.y = endY - 25;
     }
 
-    animate(vines) {
+    animate(vines, cameraOffsetX) {
         if (this.redSquareVelocity !== 0) {
             this.redSquare.x += this.redSquareVelocity;
             if (this.redSquare.x <= 0 || this.redSquare.x + 50 >= this.app.screen.width) {
                 this.redSquareVelocity *= -1;
             }
         }
-
+    
         // Check collisions only with vines ahead of the last used vine
         if (!this.attachedVine) {
             for (let i = 0; i < vines.length; i++) {
                 if (i <= this.lastVineIndex) continue;
-                
+    
                 const vine = vines[i];
                 const endX = vine.anchorX + vine.length * Math.sin(vine.angle);
                 const endY = vine.anchorY + vine.length * Math.cos(vine.angle);
-
-                if (this.checkCollision(this.redSquare, vine.anchorX, vine.anchorY, endX, endY)) {
+    
+                if (this.checkCollision(this.redSquare, vine.anchorX + cameraOffsetX, vine.anchorY, endX + cameraOffsetX, endY)) {
                     this.redSquareVelocity = 0;
                     this.attachedVine = vine;
                     this.lastVineIndex = i;
@@ -53,18 +53,18 @@ class Monkey {
                 }
             }
         }
-
+    
         if (this.attachedVine) {
             const vine = this.attachedVine;
             const endX = vine.anchorX + vine.length * Math.sin(vine.angle);
             const endY = vine.anchorY + vine.length * Math.cos(vine.angle);
-            this.redSquare.x = endX - 25;
+            this.redSquare.x = endX - 25 + cameraOffsetX;  // Apply camera offset to monkey position
             this.redSquare.y = endY - 25;
         } else {
             this.redSquare.x += this.jumpVelocityX;
             this.redSquare.y += this.jumpVelocityY;
             this.jumpVelocityY += this.gravity;
-
+    
             if (this.redSquare.y + 50 >= this.app.screen.height) {
                 this.redSquare.y = this.app.screen.height - 50;
                 this.jumpVelocityY = 0;
@@ -72,6 +72,7 @@ class Monkey {
             }
         }
     }
+    
 
     jump() {
         if (this.attachedVine) {
